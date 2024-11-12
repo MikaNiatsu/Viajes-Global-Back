@@ -1,0 +1,33 @@
+server:
+  port: 8383
+
+spring:
+  config:
+    import: "optional:configserver:"
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: NotificationBack
+          uri: lb://NotificationBack
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - AddRequestHeader=x-request-from,gateway
+            - AddResponseHeader=x-request-from,NotificationBack
+        - id: ClientesBack
+          uri: lb://ClientesBack
+          predicates:
+            - Path=/clients/**
+          filters:
+            - AddRequestHeader=x-request-from,gateway
+            - AddResponseHeader=x-request-from,ClientesBack
+        - id: BookingBack
+          uri: lb://BookingBack
+          predicates:
+            - Path=/packages/**,/hotels/**,/activities/**,/bookings/**,/flights/**
+          filters:
+            - AddRequestHeader=x-request-from,gateway
+            - AddResponseHeader=x-request-from,BookingBack
+
