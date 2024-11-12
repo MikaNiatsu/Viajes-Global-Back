@@ -1,22 +1,23 @@
 package co.edu.unbosque.sw2.Gateway.filters;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
-import java.io.IOException;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+import org.springframework.core.Ordered;
 
-@WebFilter(urlPatterns = "/*")
-public class StoreFilter implements Filter {
+@Component
+public class StoreFilter implements GlobalFilter, Ordered {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        System.out.println("Request to:" + request.getServletContext().getContextPath());
-        chain.doFilter(request, response);
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        System.out.println("Request to: " + exchange.getRequest().getPath());
+        return chain.filter(exchange);
     }
 
+    @Override
+    public int getOrder() {
+        return -1;
+    }
 }
