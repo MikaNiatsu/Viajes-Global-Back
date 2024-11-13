@@ -19,8 +19,9 @@ public class NotificationChoiceService {
     public NotificationChoiceService() {
 
     }
-   public NotificationChoiceDTO findById(int id){
-        NotificationChoiceEntity entity = notificationChoiceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("NotificationChoice not found for id: " + id));;
+    public NotificationChoiceDTO findById(int id){
+        NotificationChoiceEntity entity = notificationChoiceRepository.findById(id).orElseGet(
+                () -> notificationChoiceRepository.save(new NotificationChoiceEntity(id, false, false, false)));
         return DataMapper.notificationChoiceEntityToDTO(entity);
     }
     public List<NotificationChoiceDTO> findAll() {
@@ -35,8 +36,18 @@ public class NotificationChoiceService {
         return DataMapper.notificationChoiceEntityToDTO(savedNotificationChoice);
     }
 
+
     public void deleteById(int id) {
         notificationChoiceRepository.deleteById(id);
     }
 
+    public boolean updateNotification(NotificationChoiceDTO notificationChoiceDTO) {
+        try {
+            NotificationChoiceEntity notificationChoice = DataMapper.notificationChoiceDTOtoEntity(notificationChoiceDTO);
+            notificationChoiceRepository.save(notificationChoice);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
