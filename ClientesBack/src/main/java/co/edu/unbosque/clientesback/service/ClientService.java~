@@ -92,15 +92,6 @@ public class ClientService {
 	}
 
 	public boolean updateClient(ClientDTO clientDTO) {
-		Optional<ClientEntity> client = clientRepository.findById(clientDTO.getCustomer_id());
-		if (client.isPresent()) {
-			ClientEntity clientEntity = client.get();
-			clientEntity.setEmail(clientDTO.getEmail());
-			clientEntity.setName(clientDTO.getName());
-			clientEntity.setPhone(clientDTO.getPhone());
-			clientRepository.save(clientEntity);
-			return true;
-		}
 		return false;
 	}
 }

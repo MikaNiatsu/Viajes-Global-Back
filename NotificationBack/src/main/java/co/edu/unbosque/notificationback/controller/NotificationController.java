@@ -26,6 +26,10 @@ public class NotificationController {
         return new ResponseEntity<>(createdNotificationChoice, HttpStatus.CREATED);
     }
 
+    @PostMapping("/update")
+    public boolean updateNotification(@RequestBody NotificationChoiceDTO notificationChoiceDTO){
+        return notificationChoiceService.updateNotification(notificationChoiceDTO);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<NotificationChoiceDTO> getNotificationChoiceById(@PathVariable int id) {
         NotificationChoiceDTO notificationChoice = notificationChoiceService.findById(id);
@@ -43,4 +47,6 @@ public class NotificationController {
         notificationChoiceService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }
