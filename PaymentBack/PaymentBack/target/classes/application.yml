@@ -1,0 +1,7 @@
+paypal:
+  client-id: AQ_YqAVa3bElsqMw8vtXyXdCcaYrFt9g-cj4ZzEskZyeNxKdPTc3o_z_YQ4rzlXgKOpz2FHeRaMFdbSS
+  client-secret: EKpea9s2vz-AltrqVhbZhhd2hlaVcJccDo-mdarDpuQJtBdjIhRezra5e3uBY-ZLhD37qTe6ELOJ3hri
+  mode: sandbox # Use #sandbox' for testing and 'live' for Production
+spring:
+  application:
+    name: PaymentBack
