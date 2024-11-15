@@ -1,0 +1,159 @@
+name: Java Code Analysis
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  analyze-java:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Install analysis tools
+      run: |
+        pip install lizard
+        sudo apt-get install -y cloc
+
+    - name: Analyze Code Structure
+      run: |
+        echo "### 📊 Java Code Metrics" >> $GITHUB_STEP_SUMMARY
+        
+        for d in */; do
+          if [ -d "${d}src/main/java" ]; then
+            echo -e "\n## 📁 ${d%/}" >> $GITHUB_STEP_SUMMARY
+            
+            echo "#### 🔍 Code Complexity Analysis" >> $GITHUB_STEP_SUMMARY
+            lizard "${d}src/main/java" --xml > complexity.xml
+            
+            AVG_COMPLEXITY=$(grep -oP 'average_cyclomatic_complexity="\K[^"]+' complexity.xml || echo "N/A")
+            echo "- Average Cyclomatic Complexity: $AVG_COMPLEXITY" >> $GITHUB_STEP_SUMMARY
+            
+            echo "#### 📏 Code Size Metrics" >> $GITHUB_STEP_SUMMARY
+            cloc "${d}src/main/java" --md >> $GITHUB_STEP_SUMMARY
+            
+            echo "#### 🔎 Spring Component Analysis" >> $GITHUB_STEP_SUMMARY
+            CONTROLLERS=$(grep -r "@RestController\|@Controller" "${d}src/main/java" | wc -l)
+            SERVICES=$(grep -r "@Service" "${d}src/main/java" | wc -l)
+            REPOSITORIES=$(grep -r "@Repository" "${d}src/main/java" | wc -l)
+            ENTITIES=$(grep -r "@Entity" "${d}src/main/java" | wc -l)
+            
+            echo "- 🎮 Controllers: $CONTROLLERS" >> $GITHUB_STEP_SUMMARY
+            echo "- ⚙️ Services: $SERVICES" >> $GITHUB_STEP_SUMMARY
+            echo "- 💾 Repositories: $REPOSITORIES" >> $GITHUB_STEP_SUMMARY
+            echo "- 📋 Entities: $ENTITIES" >> $GITHUB_STEP_SUMMARY
+            
+            echo "#### 🌐 API Endpoints Analysis" >> $GITHUB_STEP_SUMMARY
+            echo "##### REST Endpoints:" >> $GITHUB_STEP_SUMMARY
+            {
+              echo "| HTTP Method | Path Pattern |"
+              echo "|-------------|--------------|"
+              grep -r "@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping\|@RequestMapping" \
+                "${d}src/main/java" | \
+                sed -E 's/.*(@(Get|Post|Put|Delete|Request)Mapping)(\([^)]*\)).*/\2 \3/' | \
+                sed 's/Mapping//' | \
+                while read -r line; do
+                  if [[ $line =~ ^[[:space:]]*$ ]]; then
+                    continue
+                  fi
+                  echo "| $line |"
+                done
+            } >> $GITHUB_STEP_SUMMARY
+            
+            if [ -f "${d}pom.xml" ]; then
+              echo "#### 📚 Dependencies Analysis" >> $GITHUB_STEP_SUMMARY
+              echo "##### Main Dependencies:" >> $GITHUB_STEP_SUMMARY
+              grep -A 2 "<dependency>" "${d}pom.xml" | \
+                grep -E "artifactId|version" | \
+                sed 'N;s/\n/ /' | \
+                sed -E 's/.*<artifactId>(.*)<\/artifactId>.*<version>(.*)<\/version>.*/- \1 (v\2)/' >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "#### ⚙️ Spring Configuration Analysis" >> $GITHUB_STEP_SUMMARY
+            if [ -f "${d}src/main/resources/application.yml" ]; then
+              echo "##### Application Properties (YAML):" >> $GITHUB_STEP_SUMMARY
+              grep -v "^#" "${d}src/main/resources/application.yml" | \
+                grep -v "^$" >> $GITHUB_STEP_SUMMARY
+            elif [ -f "${d}src/main/resources/application.properties" ]; then
+              echo "##### Application Properties:" >> $GITHUB_STEP_SUMMARY
+              grep -v "^#" "${d}src/main/resources/application.properties" | \
+                grep -v "^$" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+        done
+
+    - name: Security Pattern Analysis
+      run: |
+        echo -e "\n### 🔒 Security Analysis" >> $GITHUB_STEP_SUMMARY
+        
+        for d in */; do
+          if [ -d "${d}src/main/java" ]; then
+            echo -e "\n## ${d%/}" >> $GITHUB_STEP_SUMMARY
+            
+            SECURITY_PATTERNS=(
+              "@Secured"
+              "@PreAuthorize"
+              "@RolesAllowed"
+              "SecurityContextHolder"
+              "@EnableWebSecurity"
+            )
+            
+            echo "#### Security Implementation Patterns:" >> $GITHUB_STEP_SUMMARY
+            for pattern in "${SECURITY_PATTERNS[@]}"; do
+              COUNT=$(grep -r "$pattern" "${d}src/main/java" | wc -l)
+              echo "- $pattern: $COUNT occurrences" >> $GITHUB_STEP_SUMMARY
+            done
+            
+            echo "#### Security Checks:" >> $GITHUB_STEP_SUMMARY
+            
+            SECRETS=$(grep -r "password\|secret\|key\|token" "${d}src/main/java" | grep -v "@" | wc -l)
+            echo "- ⚠️ Potential hardcoded secrets: $SECRETS" >> $GITHUB_STEP_SUMMARY
+            
+            SQL_NATIVE=$(grep -r "createNativeQuery\|executeUpdate" "${d}src/main/java" | wc -l)
+            echo "- ⚠️ Native SQL queries (potential SQL injection risk): $SQL_NATIVE" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        
+    - name: Architecture Analysis
+      run: |
+        echo -e "\n### 🏗️ Architecture Analysis" >> $GITHUB_STEP_SUMMARY
+        
+        for d in */; do
+          if [ -d "${d}src/main/java" ]; then
+            echo -e "\n## ${d%/}" >> $GITHUB_STEP_SUMMARY
+            
+            # Analyze package structure
+            echo "#### Package Structure:" >> $GITHUB_STEP_SUMMARY
+            find "${d}src/main/java" -type d -exec sh -c '
+              echo "- ${0#*/src/main/java/}"
+            ' {} \; >> $GITHUB_STEP_SUMMARY
+            
+            # Analyze service interfaces
+            INTERFACES=$(find "${d}src/main/java" -type f -name "I*Service.java" | wc -l)
+            echo "#### Interface Analysis:" >> $GITHUB_STEP_SUMMARY
+            echo "- Service Interfaces: $INTERFACES" >> $GITHUB_STEP_SUMMARY
+            
+            # Check for design patterns
+            echo "#### Common Design Patterns:" >> $GITHUB_STEP_SUMMARY
+            PATTERNS=(
+              "Builder"
+              "Factory"
+              "Singleton"
+              "Strategy"
+              "Observer"
+            )
+            
+            for pattern in "${PATTERNS[@]}"; do
+              COUNT=$(grep -r "$pattern" "${d}src/main/java" | wc -l)
+              echo "- $pattern Pattern: $COUNT potential uses" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+        done
