@@ -78,15 +78,19 @@ jobs:
             fi
             
             echo "#### ⚙️ Spring Configuration Analysis" >> $GITHUB_STEP_SUMMARY
-            if [ -f "${d}src/main/resources/application.yml" ]; then
-              echo "##### Application Properties (YAML):" >> $GITHUB_STEP_SUMMARY
-              grep -v "^#" "${d}src/main/resources/application.yml" | \
-                grep -v "^$" >> $GITHUB_STEP_SUMMARY
-            elif [ -f "${d}src/main/resources/application.properties" ]; then
-              echo "##### Application Properties:" >> $GITHUB_STEP_SUMMARY
-              grep -v "^#" "${d}src/main/resources/application.properties" | \
-                grep -v "^$" >> $GITHUB_STEP_SUMMARY
-            fi
+          if [ -f "${d}src/main/resources/application.yml" ]; then
+            echo "##### Application Properties (YAML):" >> $GITHUB_STEP_SUMMARY
+            grep -v "^#" "${d}src/main/resources/application.yml" | \
+              grep -v "^$" | \
+              cut -d: -f1 | \
+              sed 's/^[[:space:]]*/- /' >> $GITHUB_STEP_SUMMARY
+          elif [ -f "${d}src/main/resources/application.properties" ]; then
+            echo "##### Application Properties:" >> $GITHUB_STEP_SUMMARY
+            grep -v "^#" "${d}src/main/resources/application.properties" | \
+              grep -v "^$" | \
+              cut -d= -f1 | \
+              sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          fi
           fi
         done
 
