@@ -28,7 +28,7 @@ public class ActivityController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteActivity(@PathVariable int id) {
         activityService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/showAll")
     public ResponseEntity<List<ActivityDTO>> getAllActivities() {
