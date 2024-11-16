@@ -119,6 +119,7 @@ class NotificationChoiceServiceTest {
 
     @Test
     void testUpdateNotificationFailure() {
+        // Arrange
         NotificationChoiceDTO dto = new NotificationChoiceDTO(123, true, true, false);
         NotificationChoiceEntity entity = DataMapper.notificationChoiceDTOtoEntity(dto);
         when(notificationChoiceRepository.save(any(NotificationChoiceEntity.class))).thenThrow(new RuntimeException("Error saving"));
