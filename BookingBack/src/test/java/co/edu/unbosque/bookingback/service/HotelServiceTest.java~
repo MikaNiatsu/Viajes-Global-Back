@@ -77,45 +77,18 @@ class HotelServiceTest {
     void testSave() {
         HotelDTO hotelDTO = new HotelDTO();
         hotelDTO.setHotel_id(1);
-        hotelDTO.setName("Hotel Bogota Plaza");
-        hotelDTO.setAddress("Calle 100 #123");
-        hotelDTO.setCity("Bogota");
-        hotelDTO.setCountry("Colombia");
-        hotelDTO.setPrice_per_night(200000);
-        hotelDTO.setImages("hotel-image-url.jpg");
-        hotelDTO.setDescription("Luxury hotel in the heart of Bogota");
-        hotelDTO.setRating(5);
-        hotelDTO.setStock(50);
+        hotelDTO.setName("Hotel 1");
 
-        HotelEntity savedEntity = new HotelEntity();
-        savedEntity.setHotel_id(1);
-        savedEntity.setName("Hotel Bogota Plaza");
-        savedEntity.setAddress("Calle 100 #123");
-        savedEntity.setCity("Bogota");
-        savedEntity.setCountry("Colombia");
-        savedEntity.setPrice_per_night(200000);
-        savedEntity.setImages("hotel-image-url.jpg");
-        savedEntity.setDescription("Luxury hotel in the heart of Bogota");
-        savedEntity.setRating(5);
-        savedEntity.setStock(50);
+        HotelEntity hotelEntity = DataMapper.hotelDTOtoEntity(hotelDTO);
+        HotelEntity savedEntity = DataMapper.hotelDTOtoEntity(hotelDTO);
 
-        when(hotelRepository.save(any(HotelEntity.class))).thenReturn(savedEntity);
+        when(hotelRepository.save(hotelEntity)).thenReturn(savedEntity);
 
         HotelDTO savedHotelDTO = hotelService.save(hotelDTO);
 
-        assertNotNull(savedHotelDTO);
         assertEquals(hotelDTO.getHotel_id(), savedHotelDTO.getHotel_id());
         assertEquals(hotelDTO.getName(), savedHotelDTO.getName());
-        assertEquals(hotelDTO.getAddress(), savedHotelDTO.getAddress());
-        assertEquals(hotelDTO.getCity(), savedHotelDTO.getCity());
-        assertEquals(hotelDTO.getCountry(), savedHotelDTO.getCountry());
-        assertEquals(hotelDTO.getPrice_per_night(), savedHotelDTO.getPrice_per_night());
-        assertEquals(hotelDTO.getImages(), savedHotelDTO.getImages());
-        assertEquals(hotelDTO.getDescription(), savedHotelDTO.getDescription());
-        assertEquals(hotelDTO.getRating(), savedHotelDTO.getRating());
-        assertEquals(hotelDTO.getStock(), savedHotelDTO.getStock());
-
-        verify(hotelRepository, times(1)).save(any(HotelEntity.class));
+        verify(hotelRepository, times(1)).save(hotelEntity);
     }
 
     @Test

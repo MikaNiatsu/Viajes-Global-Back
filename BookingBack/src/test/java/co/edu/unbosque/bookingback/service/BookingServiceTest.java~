@@ -134,7 +134,7 @@ class BookingServiceTest {
         BookingDTO bookingDTO = null;
 
         Exception exception = assertThrows(NullPointerException.class, () -> bookingService.save(bookingDTO));
-        assertEquals("Cannot invoke \"co.edu.unbosque.bookingback.model.BookingDTO.getBooking_id()\" because \"dto\" is null", exception.getMessage());
+        assertEquals("Booking DTO cannot be null", exception.getMessage());
     }
 
     @Test

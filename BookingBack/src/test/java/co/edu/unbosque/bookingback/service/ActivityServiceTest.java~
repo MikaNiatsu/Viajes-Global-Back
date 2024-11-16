@@ -33,11 +33,11 @@ class ActivityServiceTest {
     void testFindAll() {
         ActivityEntity activity1 = new ActivityEntity();
         activity1.setActivity_id(1);
-        activity1.setName("Sky");
+        activity1.setName("City Tour");
 
         ActivityEntity activity2 = new ActivityEntity();
         activity2.setActivity_id(2);
-        activity2.setName("Surf");
+        activity2.setName("Museum Visit");
 
         when(activityRepository.findAll()).thenReturn(Arrays.asList(activity1, activity2));
 

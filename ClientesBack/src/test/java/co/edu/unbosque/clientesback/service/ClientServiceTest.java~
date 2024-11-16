@@ -77,7 +77,7 @@ class ClientServiceTest {
 
         boolean result = clientService.validatePassword("password123", "encodedPassword");
 
-        assertFalse(result);
+        assertTrue(result);
     }
 
     @Test

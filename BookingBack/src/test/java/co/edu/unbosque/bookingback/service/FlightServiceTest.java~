@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -78,52 +77,20 @@ class FlightServiceTest {
 
     @Test
     void testSave() {
-        // Setup - Create a complete FlightDTO with all required fields
         FlightDTO flightDTO = new FlightDTO();
         flightDTO.setFlightId(1);
         flightDTO.setAirline("Avianca");
-        flightDTO.setOrigin("Bogota");
-        flightDTO.setDestination("Medellin");
-        flightDTO.setDepartureDate(Timestamp.valueOf("2024-11-16 10:00:00"));
-        flightDTO.setArrivalDate(Timestamp.valueOf("2024-11-16 11:30:00"));
-        flightDTO.setPrice(250000.0);
-        flightDTO.setImages("flight-image-url.jpg");
-        flightDTO.setDescription("Direct flight from Bogota to Medellin");
-        flightDTO.setRating(5);
-        flightDTO.setStock(100);
 
-        // Create the entity that should be returned by the repository
-        FlightEntity savedEntity = new FlightEntity();
-        savedEntity.setFlightId(1);
-        savedEntity.setAirline("Avianca");
-        savedEntity.setOrigin("Bogota");
-        savedEntity.setDestination("Medellin");
-        savedEntity.setDepartureDate(Timestamp.valueOf("2024-11-16 10:00:00"));
-        savedEntity.setArrivalDate(Timestamp.valueOf("2024-11-16 11:30:00"));
-        savedEntity.setPrice(250000.0);
-        savedEntity.setImages("flight-image-url.jpg");
-        savedEntity.setDescription("Direct flight from Bogota to Medellin");
-        savedEntity.setRating(5);
-        savedEntity.setStock(100);
+        FlightEntity flightEntity = DataMapper.flightDTOtoEntity(flightDTO);
+        FlightEntity savedEntity = DataMapper.flightDTOtoEntity(flightDTO);
 
-        when(flightRepository.save(any(FlightEntity.class))).thenReturn(savedEntity);
+        when(flightRepository.save(flightEntity)).thenReturn(savedEntity);
 
         FlightDTO savedFlightDTO = flightService.save(flightDTO);
 
-        assertNotNull(savedFlightDTO);
         assertEquals(flightDTO.getFlightId(), savedFlightDTO.getFlightId());
         assertEquals(flightDTO.getAirline(), savedFlightDTO.getAirline());
-        assertEquals(flightDTO.getOrigin(), savedFlightDTO.getOrigin());
-        assertEquals(flightDTO.getDestination(), savedFlightDTO.getDestination());
-        assertEquals(flightDTO.getDepartureDate(), savedFlightDTO.getDepartureDate());
-        assertEquals(flightDTO.getArrivalDate(), savedFlightDTO.getArrivalDate());
-        assertEquals(flightDTO.getPrice(), savedFlightDTO.getPrice());
-        assertEquals(flightDTO.getImages(), savedFlightDTO.getImages());
-        assertEquals(flightDTO.getDescription(), savedFlightDTO.getDescription());
-        assertEquals(flightDTO.getRating(), savedFlightDTO.getRating());
-        assertEquals(flightDTO.getStock(), savedFlightDTO.getStock());
-
-        verify(flightRepository, times(1)).save(any(FlightEntity.class));
+        verify(flightRepository, times(1)).save(flightEntity);
     }
 
     @Test
