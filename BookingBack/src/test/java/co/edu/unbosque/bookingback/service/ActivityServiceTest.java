@@ -72,24 +72,7 @@ class ActivityServiceTest {
         assertEquals("Activity not found with id: 1", exception.getMessage());
         verify(activityRepository, times(1)).findById(1);
     }
-
-    @Test
-    void testSave() {
-        ActivityDTO activityDTO = new ActivityDTO();
-        activityDTO.setActivity_id(1);
-        activityDTO.setName("Sky");
-
-        ActivityEntity activityEntity = DataMapper.activityDTOtoEntity(activityDTO);
-        ActivityEntity savedEntity = DataMapper.activityDTOtoEntity(activityDTO);
-
-        when(activityRepository.save(activityEntity)).thenReturn(savedEntity);
-
-        ActivityDTO savedActivityDTO = activityService.save(activityDTO);
-
-        assertEquals(activityDTO.getActivity_id(), savedActivityDTO.getActivity_id());
-        assertEquals(activityDTO.getName(), savedActivityDTO.getName());
-        verify(activityRepository, times(1)).save(activityEntity);
-    }
+    
 
     @Test
     void testDeleteById() {

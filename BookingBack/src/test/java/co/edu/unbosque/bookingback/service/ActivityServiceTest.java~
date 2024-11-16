@@ -33,11 +33,11 @@ class ActivityServiceTest {
     void testFindAll() {
         ActivityEntity activity1 = new ActivityEntity();
         activity1.setActivity_id(1);
-        activity1.setName("City Tour");
+        activity1.setName("Sky");
 
         ActivityEntity activity2 = new ActivityEntity();
         activity2.setActivity_id(2);
-        activity2.setName("Museum Visit");
+        activity2.setName("Surf");
 
         when(activityRepository.findAll()).thenReturn(Arrays.asList(activity1, activity2));
 
@@ -78,6 +78,13 @@ class ActivityServiceTest {
         ActivityDTO activityDTO = new ActivityDTO();
         activityDTO.setActivity_id(1);
         activityDTO.setName("Sky");
+        activityDTO.setDescription("description");
+        activityDTO.setPrice(100);
+        activityDTO.setLocation("Medellin");
+        activityDTO.setCategory("Adventure");
+        activityDTO.setImages("img.jpg");
+        activityDTO.setRating(5);
+        activityDTO.setStock(10);
 
         ActivityEntity activityEntity = DataMapper.activityDTOtoEntity(activityDTO);
         ActivityEntity savedEntity = DataMapper.activityDTOtoEntity(activityDTO);
@@ -86,8 +93,16 @@ class ActivityServiceTest {
 
         ActivityDTO savedActivityDTO = activityService.save(activityDTO);
 
+        assertNotNull(savedActivityDTO);
         assertEquals(activityDTO.getActivity_id(), savedActivityDTO.getActivity_id());
         assertEquals(activityDTO.getName(), savedActivityDTO.getName());
+        assertEquals(activityDTO.getDescription(), savedActivityDTO.getDescription());
+        assertEquals(activityDTO.getPrice(), savedActivityDTO.getPrice());
+        assertEquals(activityDTO.getLocation(), savedActivityDTO.getLocation());
+        assertEquals(activityDTO.getCategory(), savedActivityDTO.getCategory());
+        assertEquals(activityDTO.getImages(), savedActivityDTO.getImages());
+        assertEquals(activityDTO.getRating(), savedActivityDTO.getRating());
+        assertEquals(activityDTO.getStock(), savedActivityDTO.getStock());
         verify(activityRepository, times(1)).save(activityEntity);
     }
 
