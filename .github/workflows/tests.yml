@@ -2,146 +2,60 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main"]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 permissions:
-  contents: read
-  actions: read
+  contents: write
+  actions: write
   checks: write
-  pull-requests: write
-  issues: write
-  security-events: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - name: Check out code
+      uses: actions/checkout@v3
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    
+
     - name: Run Tests for BookingBack
-      id: booking_tests
-      continue-on-error: true
       run: |
         cd BookingBack
-        mvn test
-        echo "status=$?" >> $GITHUB_OUTPUT
-    
+        mvn test || exit 1
+
     - name: Run Tests for ClientesBack
-      id: clientes_tests
-      continue-on-error: true
       run: |
         cd ClientesBack
-        mvn test
-        echo "status=$?" >> $GITHUB_OUTPUT
-    
-    - name: Run Tests for Gateway
-      id: gateway_tests
-      continue-on-error: true
-      run: |
-        cd Gateway
-        mvn test
-        echo "status=$?" >> $GITHUB_OUTPUT
-    
+        mvn test || exit 1
+
     - name: Run Tests for NotificationBack
-      id: notification_tests
-      continue-on-error: true
       run: |
         cd NotificationBack
-        mvn test
-        echo "status=$?" >> $GITHUB_OUTPUT
-    
+        mvn test || exit 1
+
     - name: Run Tests for PaymentBack
-      id: payment_tests
-      continue-on-error: true
       run: |
         cd PaymentBack
-        mvn test
-        echo "status=$?" >> $GITHUB_OUTPUT
+        mvn test || exit 1
 
-    - name: Generate Test Summary
-      if: always()
-      run: |
-        echo "# Test Results Summary" >> $GITHUB_STEP_SUMMARY
-        echo "## Module Status" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ steps.booking_tests.outcome }}" == "success" ]; then
-          echo "✅ BookingBack tests passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ BookingBack tests failed" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat BookingBack/target/surefire-reports/*.txt 2>/dev/null || echo "No test reports found" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ steps.clientes_tests.outcome }}" == "success" ]; then
-          echo "✅ ClientesBack tests passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ ClientesBack tests failed" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat ClientesBack/target/surefire-reports/*.txt 2>/dev/null || echo "No test reports found" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ steps.gateway_tests.outcome }}" == "success" ]; then
-          echo "✅ Gateway tests passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ Gateway tests failed" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat Gateway/target/surefire-reports/*.txt 2>/dev/null || echo "No test reports found" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ steps.notification_tests.outcome }}" == "success" ]; then
-          echo "✅ NotificationBack tests passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ NotificationBack tests failed" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat NotificationBack/target/surefire-reports/*.txt 2>/dev/null || echo "No test reports found" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ "${{ steps.payment_tests.outcome }}" == "success" ]; then
-          echo "✅ PaymentBack tests passed" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ PaymentBack tests failed" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat PaymentBack/target/surefire-reports/*.txt 2>/dev/null || echo "No test reports found" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        fi
-
-    - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      if: always()
-      with:
-        files: "**/target/surefire-reports/TEST-*.xml"
-        
-    - name: Upload Test Results
-      if: always()
+    # Subir los resultados de las pruebas
+    - name: Upload Test Results (JUnit XML)
+      if: always()  # Siempre subir los resultados incluso si fallan pruebas
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: |
-          **/target/surefire-reports/*.xml
-          **/target/surefire-reports/*.txt
+        path: '**/target/surefire-reports/TEST-*.xml'
 
-    - name: Check if any tests failed
+    - name: Cache cleanup info
       if: always()
       run: |
-        if [ "${{ steps.booking_tests.outcome }}" != "success" ] || \
-           [ "${{ steps.clientes_tests.outcome }}" != "success" ] || \
-           [ "${{ steps.gateway_tests.outcome }}" != "success" ] || \
-           [ "${{ steps.notification_tests.outcome }}" != "success" ] || \
-           [ "${{ steps.payment_tests.outcome }}" != "success" ]; then
-          echo "Some tests failed!"
-          exit 1
-        fi
+        echo "Cache Size Details:"
+        du -sh /home/runner/.m2/repository
