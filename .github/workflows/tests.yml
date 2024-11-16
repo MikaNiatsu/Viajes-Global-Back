@@ -46,13 +46,14 @@ jobs:
         cd PaymentBack
         mvn test || exit 1
 
+
     - name: Generate detailed test report
       uses: dorny/test-reporter@v1
-      if: always()  
+      if: always() 
       with:
         name: "Java Test Report"
         path: '**/target/surefire-reports/TEST-*.xml'
-        reporter: junit
+        reporter: junit-xml
 
     - name: Upload Test Results
       if: always()  
