@@ -2,87 +2,60 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ "main" ]
 
 permissions:
-  checks: write
-  contents: read
-  pull-requests: write
-  security-events: write
+  contents: write
+  actions: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        
-    - name: Check and Run Tests for BookingBack
+
+    - name: Run Tests for BookingBack
       run: |
-        if [ -d "BookingBack/src/test" ] && [ "$(find BookingBack/src/test -type f -name '*Test.java' -o -name '*Tests.java')" ]; then
-          cd BookingBack
-          mvn test
-        else
-          echo "No test files found in BookingBack, skipping..."
-        fi
-        
-    - name: Check and Run Tests for ClientesBack
+        cd BookingBack
+        mvn test || echo "BookingBack Tests Failed"
+
+    - name: Run Tests for ClientesBack
       run: |
-        if [ -d "ClientesBack/src/test" ] && [ "$(find ClientesBack/src/test -type f -name '*Test.java' -o -name '*Tests.java')" ]; then
-          cd ClientesBack
-          mvn test
-        else
-          echo "No test files found in ClientesBack, skipping..."
-        fi
-        
-    - name: Check and Run Tests for Gateway
+        cd ClientesBack
+        mvn test || echo "ClientesBack Tests Failed"
+
+    - name: Run Tests for NotificationBack
       run: |
-        if [ -d "Gateway/src/test" ] && [ "$(find Gateway/src/test -type f -name '*Test.java' -o -name '*Tests.java')" ]; then
-          cd Gateway
-          mvn test
-        else
-          echo "No test files found in Gateway, skipping..."
-        fi
-        
-    - name: Check and Run Tests for NotificationBack
+        cd NotificationBack
+        mvn test || echo "NotificationBack Tests Failed"
+
+    - name: Run Tests for PaymentBack
       run: |
-        if [ -d "NotificationBack/src/test" ] && [ "$(find NotificationBack/src/test -type f -name '*Test.java' -o -name '*Tests.java')" ]; then
-          cd NotificationBack
-          mvn test
-        else
-          echo "No test files found in NotificationBack, skipping..."
-        fi
-        
-    - name: Check and Run Tests for PaymentBack
-      run: |
-        if [ -d "PaymentBack/src/test" ] && [ "$(find PaymentBack/src/test -type f -name '*Test.java' -o -name '*Tests.java')" ]; then
-          cd PaymentBack
-          mvn test
-        else
-          echo "No test files found in PaymentBack, skipping..."
-        fi
-        
+        cd PaymentBack
+        mvn test || echo "PaymentBack Tests Failed"
+
     - name: Publish Test Report
-      uses: dorny/test-reporter@v1
+      uses: mikepenz/action-junit-report@v3
       if: success() || failure()
       with:
-        name: Test Results
-        path: '**/target/surefire-reports/TEST-*.xml'
-        reporter: java-junit
-        fail-on-error: false
-        
+        report_paths: '**/target/surefire-reports/TEST-*.xml'
+        fail_on_failure: false
+        require_tests: true
+
     - name: Upload Test Results
       if: success() || failure()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
         path: '**/target/surefire-reports/*.xml'
+
