@@ -30,9 +30,22 @@ class PackageServiceTest {
     void setUp() {
         openMocks(this);
     }
+    
 
+    @Test
+    void testFindById() {
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setPackage_id(1);
+        packageDTO.setPrice(500);
 
+        PackageEntity packageEntity = null;
+        when(packageRepository.findById(1)).thenReturn(Optional.of(packageEntity));
 
+        PackageDTO foundPackage = packageService.findById(1);
+
+        assertEquals(packageDTO, foundPackage);
+        verify(packageRepository, times(1)).findById(1);
+    }
 
     @Test
     void testFindByIdNotFound() {
