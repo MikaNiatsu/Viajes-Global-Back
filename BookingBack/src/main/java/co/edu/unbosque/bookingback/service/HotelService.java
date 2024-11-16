@@ -17,7 +17,6 @@ public class HotelService {
 	private HotelRepository hotelRepository;
 	
 	public HotelService() {
-		// TODO Auto-generated constructor stub
 	}
 	public void deleteById(int id) {
 		hotelRepository.deleteById(id);
