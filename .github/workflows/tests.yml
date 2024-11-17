@@ -48,14 +48,25 @@ jobs:
 
     # Subir los resultados de las pruebas
     - name: Upload Test Results (JUnit XML)
-      if: always()  # Siempre subir los resultados incluso si fallan pruebas
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
         path: '**/target/surefire-reports/TEST-*.xml'
+
+    - name: Generate Test Summary
+      run: |
+        echo "## Test Summary" > summary.md
+        echo "### Test Results:" >> summary.md
+        for file in **/target/surefire-reports/TEST-*.xml; do
+          echo "#### $file" >> summary.md
+          tail -n 10 $file >> summary.md  # Agrega las últimas 10 líneas del archivo XML
+        done
+        cat summary.md
 
     - name: Cache cleanup info
       if: always()
       run: |
         echo "Cache Size Details:"
         du -sh /home/runner/.m2/repository
+
