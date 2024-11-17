@@ -26,6 +26,12 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    # Limpieza de resultados anteriores
+    - name: Clean previous results and cache
+      run: |
+        rm -rf **/target/surefire-reports/*  # Elimina los informes de pruebas anteriores
+        mvn clean  # Limpia los archivos generados de Maven
+
     - name: Run Tests for BookingBack
       run: |
         cd BookingBack
@@ -48,7 +54,7 @@ jobs:
 
     # Subir los resultados de las pruebas
     - name: Upload Test Results (JUnit XML)
-      if: always()
+      if: always()  # Siempre subir los resultados incluso si fallan pruebas
       uses: actions/upload-artifact@v3
       with:
         name: test-results
@@ -69,4 +75,3 @@ jobs:
       run: |
         echo "Cache Size Details:"
         du -sh /home/runner/.m2/repository
-
