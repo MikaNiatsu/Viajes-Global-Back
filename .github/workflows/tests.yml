@@ -32,6 +32,7 @@ jobs:
         rm -rf **/target/surefire-reports/*  # Elimina los informes de pruebas anteriores
         mvn clean  # Limpia los archivos generados de Maven
 
+    # Ejecutar las pruebas para cada uno de los proyectos (asegurarse de estar en el directorio correcto)
     - name: Run Tests for BookingBack
       run: |
         cd BookingBack
@@ -54,7 +55,7 @@ jobs:
 
     # Subir los resultados de las pruebas
     - name: Upload Test Results (JUnit XML)
-      if: always()  # Siempre subir los resultados incluso si fallan pruebas
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
