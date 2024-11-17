@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------
+Test set: co.edu.unbosque.bookingback.service.FlightServiceTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.071 s <<< FAILURE! -- in co.edu.unbosque.bookingback.service.FlightServiceTest
+co.edu.unbosque.bookingback.service.FlightServiceTest.testSave -- Time elapsed: 0.003 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "co.edu.unbosque.bookingback.model.FlightEntity.getFlightId()" because "entity" is null
+	at co.edu.unbosque.bookingback.service.DataMapper.flightEntityToDTO(DataMapper.java:85)
+	at co.edu.unbosque.bookingback.service.FlightService.save(FlightService.java:30)
+	at co.edu.unbosque.bookingback.service.FlightServiceTest.testSave(FlightServiceTest.java:89)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1597)
+

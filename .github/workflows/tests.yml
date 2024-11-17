@@ -1,0 +1,61 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+permissions:
+  contents: write
+  actions: write
+  checks: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Run Tests for BookingBack
+      run: |
+        cd BookingBack
+        mvn test || exit 1
+
+    - name: Run Tests for ClientesBack
+      run: |
+        cd ClientesBack
+        mvn test || exit 1
+
+    - name: Run Tests for NotificationBack
+      run: |
+        cd NotificationBack
+        mvn test || exit 1
+
+    - name: Run Tests for PaymentBack
+      run: |
+        cd PaymentBack
+        mvn test || exit 1
+
+    # Subir los resultados de las pruebas
+    - name: Upload Test Results (JUnit XML)
+      if: always()  # Siempre subir los resultados incluso si fallan pruebas
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/target/surefire-reports/TEST-*.xml'
+
+    - name: Cache cleanup info
+      if: always()
+      run: |
+        echo "Cache Size Details:"
+        du -sh /home/runner/.m2/repository
