@@ -72,7 +72,7 @@ class ActivityServiceTest {
         assertEquals("Activity not found with id: 1", exception.getMessage());
         verify(activityRepository, times(1)).findById(1);
     }
-    
+
 
     @Test
     void testDeleteById() {
