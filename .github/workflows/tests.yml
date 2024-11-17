@@ -26,31 +26,32 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    # Limpieza de resultados anteriores
     - name: Clean previous results and cache
       run: |
-        rm -rf **/target/surefire-reports/*  # Elimina los informes de pruebas anteriores
-        mvn clean  # Limpia los archivos generados de Maven
+        rm -rf **/target/surefire-reports/* 
 
-    # Ejecutar las pruebas para cada uno de los proyectos (asegurarse de estar en el directorio correcto)
     - name: Run Tests for BookingBack
       run: |
         cd BookingBack
+        mvn clean
         mvn test || exit 1
 
     - name: Run Tests for ClientesBack
       run: |
         cd ClientesBack
+        mvn clean
         mvn test || exit 1
 
     - name: Run Tests for NotificationBack
       run: |
         cd NotificationBack
+        mvn clean
         mvn test || exit 1
 
     - name: Run Tests for PaymentBack
       run: |
         cd PaymentBack
+        mvn clean
         mvn test || exit 1
 
     # Subir los resultados de las pruebas
