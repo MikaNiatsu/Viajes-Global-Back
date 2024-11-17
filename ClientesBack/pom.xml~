@@ -11,7 +11,7 @@
 	<groupId>co.edu.unbosque</groupId>
 	<artifactId>ClientesBack</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ClientesBack</name>
+	<phone>ClientesBack</phone>
 	<description>ClientesBack</description>
 	<url/>
 	<licenses>
