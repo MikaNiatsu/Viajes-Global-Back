@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,10 +42,5 @@ public class PackageService {
 
 	public void deleteById(int id) {
 		packageRepository.deleteById(id);
-	}
-
-	public PackageEntity findByIdEntity(int packageId) {
-		Optional<PackageEntity> entity = packageRepository.findById(packageId);
-		return entity.orElse(null);
 	}
 }

@@ -1,55 +1,58 @@
 package co.edu.unbosque.notificationback.util;
 
-import javax.mail.*;
-import javax.mail.internet.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Properties;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 public class SendEmail {
+    private static final String API_KEY = "a75655570780e1fbe080242f64c8e902-2ae9e1e8-4281-4fea-b7a8-9a86c6d656c8";
+    private static final String BASE_URL = "https://ypvqgp.api.infobip.com/email/3/send";
 
-    private final String smtpHost;
-    private final int smtpPort;
-    private final String username;
-    private final String password;
+    public static void sendEmail(String toEmail, String subject, String messageText) {
+        RestTemplate restTemplate = new RestTemplate();
 
-    public SendEmail(String smtpHost, int smtpPort, String username, String password) {
-        this.smtpHost = smtpHost;
-        this.smtpPort = smtpPort;
-        this.username = username;
-        this.password = password;
-    }
+        // Encabezados de la solicitud
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "App " + API_KEY);
+        headers.set("Content-Type", "multipart/form-data");
+        headers.set("Accept", "application/json");
 
-    private Session createSession() {
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", smtpPort);
+        // Cuerpo de la solicitud en formato multipart
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("from", "bc3fcbd1306857b05485b714c44c81248dc3@hotmail.com");
+        body.add("subject", subject);
+        body.add("to", String.format("{\"to\":\"%s\",\"placeholders\":{\"firstName\":\"Viajes-Global\"}}", toEmail));
+        body.add("text", messageText);
 
-        return Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
+        // Construye la solicitud
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Envía la solicitud
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(BASE_URL, HttpMethod.POST, requestEntity, String.class);
+            int statusCode = response.getStatusCodeValue();
+            String responseString = response.getBody();
+            if (statusCode == 200) {
+                System.out.println("Email enviado exitosamente");
+                System.out.println("Respuesta: " + responseString);
+            } else {
+                System.err.println("Error al enviar Email. Código: " + statusCode);
+                System.err.println("Respuesta: " + responseString);
+                if (statusCode == 400) {
+                    System.err.println("Error de validación en la solicitud");
+                }
             }
-        });
+        } catch (Exception e) {
+            System.err.println("Error al enviar Email: " + e.getMessage());
+        }
     }
 
-    public void sendEmailHTML(String to, String subject, File htmlFile) throws MessagingException, IOException {
-        String content = new String(Files.readAllBytes(htmlFile.toPath()));
-        sendEmail(to, subject, content);
+    public static void main(String[] args) {
+        sendEmail("maigueld29@gmail.com", "Prueba de Email", "Hi {{firstName}}, this is a test message from Infobip. Have a nice day!");
     }
-
-    public void sendEmail(String to, String subject, String body) throws MessagingException {
-        Session session = createSession();
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(username));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-        message.setSubject(subject);
-        message.setContent(body, "text/html; charset=utf-8");
-        Transport.send(message);
-        System.out.println("Email sent successfully to " + to);
-    }
-
 }
