@@ -1,31 +1,49 @@
 package co.edu.unbosque.notificationback.util;
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
+
+import kong.unirest.HttpResponse;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
 
 public class SendSMS {
-
-    private static String accountSid = "AC46906ed6338f9a20aa2847349cc9229c";
-    private static String authToken = "d202a7c40359a05e5cc333a339c87850";
-    private static String fromPhoneNumber = "ACA TOCA PONER EL NUMERO DE TELEFONO QUE ENVIARA EL MENSAJE, SI QUIERES PON EL TUYO";
-
-    static {
-        Twilio.init(accountSid, authToken);
-    }
+    private static final String API_KEY = "a75655570780e1fbe080242f64c8e902-2ae9e1e8-4281-4fea-b7a8-9a86c6d656c8";
+    private static final String BASE_URL = "https://sypvqgp.api.infobip.com/sms/2/text/advanced";
 
     public static void sendSms(String toPhoneNumber, String messageBody) {
         try {
-            Message message = Message.creator(
-                    new com.twilio.type.PhoneNumber(toPhoneNumber),
-                    new com.twilio.type.PhoneNumber(fromPhoneNumber),
-                    messageBody
-            ).create();
-            //Para enviar el sms tienes que poner esta linea de codigo SmsUtil.sendSms(Al numero que se va enviar, Mensaje a enviar);
+            HttpResponse<JsonNode> response = Unirest.post(BASE_URL)
+                    .header("Authorization", "App " + API_KEY)
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .body(String.format("""
+                            {
+                                "messages": [{
+                                    "destinations": [{
+                                        "to": "%s"
+                                    }],
+                                    "from": "447491163443",
+                                    "text": "%s"
+                                }]
+                            }
+                            """, toPhoneNumber, messageBody))
+                    .asJson();
 
-            System.out.println("Mensaje enviado con SID: " + message.getSid());
+            // Verificar la respuesta
+            if (response.getStatus() == 200) {
+                System.out.println("Mensaje enviado exitosamente");
+                System.out.println("Respuesta: " + response.getBody().toString());
+            } else {
+                System.err.println("Error al enviar SMS. Código: " + response.getStatus());
+                System.err.println("Respuesta: " + response.getBody().toString());
+            }
 
         } catch (Exception e) {
             System.err.println("Error al enviar SMS: " + e.getMessage());
         }
     }
+
+    public static void main(String[] args) {
+        sendSms("573025346788", "Hello, this is a test message from Infobip. Have a nice day!");
+    }
+
 }

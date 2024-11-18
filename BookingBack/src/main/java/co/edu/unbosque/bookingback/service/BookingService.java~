@@ -40,9 +40,11 @@ public class BookingService {
 		bookingRepository.deleteById(id);
 	}
 
-	public List<BookingDTO> findByCustomerId(int customerId) {
-		return bookingRepository.findByCustomer_id(customerId).stream()
-				.map(DataMapper::bookingEntityToDTO)
-				.collect(Collectors.toList());
+	public BookingDTO findByCustomerId(int customerId) {
+		Optional<BookingEntity> entity = bookingRepository.findByCustomer_id(customerId);
+		if (entity.isEmpty()) {
+			throw new EntityNotFoundException("Booking not found for customer id: " + customerId);
+		}
+		return DataMapper.bookingEntityToDTO(entity.get());
 	}
 }

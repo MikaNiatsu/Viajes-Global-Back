@@ -25,6 +25,7 @@ public class PaypalController {
 
     @PostMapping("/payment/create")
     public ResponseEntity<?> createPayment(@RequestBody PaymentRequest paymentRequest) {
+        System.out.println(paymentRequest);
         try {
             String cancelUrl = "http://localhost:3000/payment/cancel"; // Actualizar al puerto del frontend
             String successUrl = "http://localhost:3000/payment/success"; // Actualizar al puerto del frontend

@@ -30,4 +30,11 @@ spring:
           filters:
             - AddRequestHeader=x-request-from,gateway
             - AddResponseHeader=x-request-from,BookingBack
+        - id: PaymentBack
+          uri: lb://PaymentBack
+          predicates:
+            - Path=/payments/**
+          filters:
+            - AddRequestHeader=x-request-from,gateway
+            - AddResponseHeader=x-request-from,PaymentBack
 
