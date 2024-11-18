@@ -6,6 +6,9 @@ import co.edu.unbosque.notificationback.service.DataMapper;
 import co.edu.unbosque.notificationback.service.NotificationChoiceService;
 import co.edu.unbosque.notificationback.util.SendEmail;
 import co.edu.unbosque.notificationback.util.SendSMS;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,40 +25,75 @@ public class NotificationController {
     public NotificationChoiceService notificationChoiceService;
 
     @GetMapping("/client/{clientId}")
+    @Operation(summary = "Obtiene las preferencias de notificaciones de un cliente", description = "Obtiene las preferencias de notificaciones de un cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preferencias de notificaciones encontradas"),
+            @ApiResponse(responseCode = "404", description = "Preferencias de notificaciones no encontradas")
+    })
     public NotificationChoiceDTO getNotificationChoiceByClientId(@PathVariable int clientId) {
         return notificationChoiceService.findById(clientId);
     }
 
     @PostMapping("/createNotification")
+    @Operation(summary = "Crea una preferencia de notificaciones", description = "Crea una preferencia de notificaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Preferencia de notificaciones creada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al crear la preferencia de notificaciones")
+    })
     public ResponseEntity<NotificationChoiceDTO> createNotificationChoice(@RequestBody NotificationChoiceDTO notificationChoiceDTO) {
         NotificationChoiceDTO createdNotificationChoice = notificationChoiceService.save(notificationChoiceDTO);
         return new ResponseEntity<>(createdNotificationChoice, HttpStatus.CREATED);
     }
 
     @PostMapping("/update")
+    @Operation(summary = "Actualiza una preferencia de notificaciones", description = "Actualiza una preferencia de notificaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preferencia de notificaciones actualizada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al actualizar la preferencia de notificaciones")
+    })
     public boolean updateNotification(@RequestBody NotificationChoiceDTO notificationChoiceDTO) {
         return notificationChoiceService.updateNotification(notificationChoiceDTO);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Obtiene una preferencia de notificaciones por su id", description = "Obtiene una preferencia de notificaciones por su id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preferencia de notificaciones encontrada"),
+            @ApiResponse(responseCode = "404", description = "Preferencia de notificaciones no encontrada")
+    })
     public ResponseEntity<NotificationChoiceDTO> getNotificationChoiceById(@PathVariable int id) {
         NotificationChoiceDTO notificationChoice = notificationChoiceService.findById(id);
         return new ResponseEntity<>(notificationChoice, HttpStatus.OK);
     }
 
     @GetMapping("showAll")
+    @ApiOperation(value = "Obtiene todas las preferencias de notificaciones", notes = "Obtiene todas las preferencias de notificaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preferencias de notificaciones encontradas"),
+            @ApiResponse(responseCode = "404", description = "Preferencias de notificaciones no encontradas")
+    })
     public ResponseEntity<List<NotificationChoiceDTO>> getAllNotificationChoices() {
         List<NotificationChoiceDTO> notificationChoices = notificationChoiceService.findAll();
         return new ResponseEntity<>(notificationChoices, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
+    @ApiOperation(value = "Elimina una preferencia de notificaciones", notes = "Elimina una preferencia de notificaciones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Preferencia de notificaciones eliminada correctamente"),
+            @ApiResponse(responseCode = "404", description = "Preferencia de notificaciones no encontrada")
+    })
     public ResponseEntity<Void> deleteNotificationChoice(@PathVariable int id) {
         notificationChoiceService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/sendNotification")
+    @ApiOperation(value = "Envia una notificacion", notes = "Envia una notificacion")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notificacion enviada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Error al enviar la notificacion")
+    })
     public boolean sendNotification(@RequestBody Map<String, String> body) {
         String messageHtml = body.get("messageHtml");
         String message = body.get("message");
@@ -66,7 +104,7 @@ public class NotificationController {
             NotificationChoiceEntity notificationChoice = DataMapper.notificationChoiceDTOtoEntity(responseEntity.getBody());
             System.out.println(notificationChoice.isEmail() + " " + notificationChoice.isSms());
             if (notificationChoice.isEmail()) {
-
+                SendEmail.sendEmail(to, subject, messageHtml);
             }
             if (notificationChoice.isSms()) {
                 SendSMS.sendSms(to, message);
@@ -78,6 +116,4 @@ public class NotificationController {
 
         return true;
     }
-
-
 }

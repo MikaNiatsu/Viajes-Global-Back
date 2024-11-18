@@ -27,28 +27,31 @@ public class PackageController {
     @Autowired
     private HotelService hotelService;
 
-        @PostMapping(value = "/createPackage")
-        public ResponseEntity<Object> createPackage(@RequestBody Map<String, String> body) {
-            int price = (int) Double.parseDouble(body.get("price"));
-            Integer hotel_id = body.get("hotel_id") != null ? Integer.parseInt(body.get("hotel_id")) : null;
-            Integer flight_id = body.get("flight_id") != null ? Integer.parseInt(body.get("flight_id")) : null;
-            Integer activity_id = body.get("activity_id") != null ? Integer.parseInt(body.get("activity_id")) : null;
-            HotelEntity hotel = hotel_id != null ? hotelService.findByIdEntity(hotel_id) : null;
-            FlightEntity flight = flight_id != null ? flightService.findByIdEntity(flight_id) : null;
-            ActivityEntity activity = activity_id != null ? activityService.findByIdEntity(activity_id) : null;
-            int result = packageService.save(new PackageDTO(0, price, hotel, flight, activity));
-            return new ResponseEntity<>(result, HttpStatus.CREATED);
-        }
+    @PostMapping(value = "/createPackage")
+    public ResponseEntity<Object> createPackage(@RequestBody Map<String, String> body) {
+        int price = (int) Double.parseDouble(body.get("price"));
+        Integer hotel_id = body.get("hotel_id") != null ? Integer.parseInt(body.get("hotel_id")) : null;
+        Integer flight_id = body.get("flight_id") != null ? Integer.parseInt(body.get("flight_id")) : null;
+        Integer activity_id = body.get("activity_id") != null ? Integer.parseInt(body.get("activity_id")) : null;
+        HotelEntity hotel = hotel_id != null ? hotelService.findByIdEntity(hotel_id) : null;
+        FlightEntity flight = flight_id != null ? flightService.findByIdEntity(flight_id) : null;
+        ActivityEntity activity = activity_id != null ? activityService.findByIdEntity(activity_id) : null;
+        int result = packageService.save(new PackageDTO(0, price, hotel, flight, activity));
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PackageDTO> getPackageById(@PathVariable int id) {
         PackageDTO packageDTO = packageService.findById(id);
         return new ResponseEntity<>(packageDTO, HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePackage(@PathVariable int id) {
         packageService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
     @GetMapping("/showAll")
     public ResponseEntity<List<PackageDTO>> getAllPackages() {
         List<PackageDTO> packages = packageService.findAll();

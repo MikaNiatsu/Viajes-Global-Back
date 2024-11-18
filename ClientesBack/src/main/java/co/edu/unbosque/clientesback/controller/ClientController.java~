@@ -33,7 +33,10 @@ public class ClientController {
         return clientService.registerClient(clientDTO);
     }
 
-    
+    @PostMapping("/update")
+    public boolean updateClient(@RequestBody ClientDTO clientDTO) {
+        return clientService.updateClient(clientDTO);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> body) {
